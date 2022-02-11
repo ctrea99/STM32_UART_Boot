@@ -1,7 +1,16 @@
 
 
 #include "STM32_UART_boot.h"
+#include "UART_driver.h"
 #include <stdio.h>
+
+
+/*
+ *  Current Issues:
+ *    - How to wait for ACK/NACK from STM32
+ *
+ *
+ */
 
 int STM32_UART_boot(){
 
@@ -14,8 +23,8 @@ int STM32_UART_boot(){
     // unset STM32 reset
 
 
-    // Transmit UART_INIT_BYTE
-    // Wait for ACK from STM32
+    // Transmit UART_INIT_BYTE to initialize UART interface
+    // Wait for ACK from STM32 (STM32 now able to receive commands)
 
     // Import STM32 software .bin file
     software_file_id = fopen(SOFTWARE_FILE_PATH, "rb");
@@ -37,7 +46,7 @@ int STM32_UART_boot(){
 
         // transmit bytes to STM32 flash memory
         write_status = UART_write_memory();
-        
+
         if (write_status == ERROR){
             return ERROR;
         }
