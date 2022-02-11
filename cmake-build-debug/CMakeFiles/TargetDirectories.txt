@@ -1,0 +1,3 @@
+D:/Campbells_Stuff/University_of_Alberta/AlbertaSAT/Software/STM32_UART_boot/STM32_UART_Boot/cmake-build-debug/CMakeFiles/edit_cache.dir
+D:/Campbells_Stuff/University_of_Alberta/AlbertaSAT/Software/STM32_UART_boot/STM32_UART_Boot/cmake-build-debug/CMakeFiles/main.dir
+D:/Campbells_Stuff/University_of_Alberta/AlbertaSAT/Software/STM32_UART_boot/STM32_UART_Boot/cmake-build-debug/CMakeFiles/rebuild_cache.dir
