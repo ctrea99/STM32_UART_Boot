@@ -9,10 +9,10 @@
 // For testing purposes, just use FTDI D2XX drivers
 
 int UART_Tx(){
-
+    return 0;
 }
 
 
 int UART_Rx(){
-
+    return 0;
 }

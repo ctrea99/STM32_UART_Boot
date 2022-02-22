@@ -45,7 +45,7 @@ int STM32_UART_boot(){
     while (num_bytes_read > 0){
 
         // transmit bytes to STM32 flash memory
-        write_status = UART_write_memory();
+        //write_status = UART_write_memory();
 
         if (write_status == ERROR){
             return ERROR;

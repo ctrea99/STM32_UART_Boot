@@ -1,5 +1,7 @@
 # ninja log v5
 1	108	6662434066269783	CMakeFiles/STM32_UART_Boot.dir/main.c.obj	125c3aa01b549e4a
-2	107	6662483976733604	CMakeFiles/main.dir/STM32_UART_boot.c.obj	8fbb0b5782181b0e
-13	2376	6662483149228091	CMakeFiles/main.dir/main.c.obj	157fef818d8f2690
+6	1161	6668998381299249	CMakeFiles/main.dir/STM32_UART_boot.c.obj	a3d7ae64b3c84577
+30	1172	6668998381418913	CMakeFiles/main.dir/UART_driver.c.obj	26bfcfcaefe4970f
+3	1104	6669009818894361	CMakeFiles/main.dir/main.c.obj	28b2b665809f04d6
 107	280	6662483978419463	main.exe	8a3ed843514ca8f2
+0	169	6669029653339830	build.ninja	7be6ee6d54dbdb0b

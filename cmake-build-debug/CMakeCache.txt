@@ -204,6 +204,27 @@ CMAKE_STRIP:FILEPATH=D:/Program Files/JetBrains/CLion 2021.3.2/bin/mingw/bin/str
 // Studio IDE projects all commands are done without /nologo.
 CMAKE_VERBOSE_MAKEFILE:BOOL=FALSE
 
+//Path to a library.
+D2XX_DRIVER:FILEPATH=D2XX_DRIVER-NOTFOUND
+
+//Path to a library.
+FTD2SS_LIBRARY:FILEPATH=D:/Campbells_Stuff/University_of_Alberta/AlbertaSAT/Software/STM32_UART_boot/STM32_UART_Boot/libraries/FTDI_D2XX_driver/lib/ftd2xx.lib
+
+//Path to a file.
+FTD2XX_INCLUDE_DIR:PATH=D:/Campbells_Stuff/University_of_Alberta/AlbertaSAT/Software/STM32_UART_boot/STM32_UART_Boot/libraries/FTDI_D2XX_driver/include
+
+//Path to a library.
+FTD2XX_LIBRARY:FILEPATH=D:/Campbells_Stuff/University_of_Alberta/AlbertaSAT/Software/STM32_UART_boot/STM32_UART_Boot/libraries/FTDI_D2XX_driver/lib/ftd2xx.lib
+
+//The directory containing a CMake configuration file for FTD2X.
+FTD2X_DIR:PATH=FTD2X_DIR-NOTFOUND
+
+//The directory containing a CMake configuration file for FT.
+FT_DIR:PATH=FT_DIR-NOTFOUND
+
+//pkg-config executable
+PKG_CONFIG_EXECUTABLE:FILEPATH=PKG_CONFIG_EXECUTABLE-NOTFOUND
+
 //Value Computed by CMake
 STM32_UART_Boot_BINARY_DIR:STATIC=D:/Campbells_Stuff/University_of_Alberta/AlbertaSAT/Software/STM32_UART_boot/STM32_UART_Boot/cmake-build-debug
 
@@ -352,4 +373,6 @@ CMAKE_STATIC_LINKER_FLAGS_RELWITHDEBINFO-ADVANCED:INTERNAL=1
 CMAKE_STRIP-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: CMAKE_VERBOSE_MAKEFILE
 CMAKE_VERBOSE_MAKEFILE-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: PKG_CONFIG_EXECUTABLE
+PKG_CONFIG_EXECUTABLE-ADVANCED:INTERNAL=1
 
