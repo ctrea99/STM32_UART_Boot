@@ -90,6 +90,12 @@ build CMakeFiles/STM32_UART_Boot.dir/UART_driver.c.o: C_COMPILER__STM32_UART_Boo
   OBJECT_DIR = CMakeFiles/STM32_UART_Boot.dir
   OBJECT_FILE_DIR = CMakeFiles/STM32_UART_Boot.dir
 
+build CMakeFiles/STM32_UART_Boot.dir/testing_file.c.o: C_COMPILER__STM32_UART_Boot_Debug /home/campell/Documents/crea/absat/software/STM32_UART_Boot/testing_file.c || cmake_object_order_depends_target_STM32_UART_Boot
+  DEP_FILE = CMakeFiles/STM32_UART_Boot.dir/testing_file.c.o.d
+  FLAGS = -g -std=gnu99
+  OBJECT_DIR = CMakeFiles/STM32_UART_Boot.dir
+  OBJECT_FILE_DIR = CMakeFiles/STM32_UART_Boot.dir
+
 
 # =============================================================================
 # Link build statements for EXECUTABLE target STM32_UART_Boot
@@ -98,7 +104,7 @@ build CMakeFiles/STM32_UART_Boot.dir/UART_driver.c.o: C_COMPILER__STM32_UART_Boo
 #############################################
 # Link the executable STM32_UART_Boot
 
-build STM32_UART_Boot: C_EXECUTABLE_LINKER__STM32_UART_Boot_Debug CMakeFiles/STM32_UART_Boot.dir/main.c.o CMakeFiles/STM32_UART_Boot.dir/STM32_UART_boot.c.o CMakeFiles/STM32_UART_Boot.dir/UART_driver.c.o
+build STM32_UART_Boot: C_EXECUTABLE_LINKER__STM32_UART_Boot_Debug CMakeFiles/STM32_UART_Boot.dir/main.c.o CMakeFiles/STM32_UART_Boot.dir/STM32_UART_boot.c.o CMakeFiles/STM32_UART_Boot.dir/UART_driver.c.o CMakeFiles/STM32_UART_Boot.dir/testing_file.c.o
   FLAGS = -g
   OBJECT_DIR = CMakeFiles/STM32_UART_Boot.dir
   POST_BUILD = :

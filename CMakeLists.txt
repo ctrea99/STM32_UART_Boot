@@ -3,6 +3,6 @@ project(STM32_UART_Boot C)
 
 set(CMAKE_C_STANDARD 99)
 
-add_executable(STM32_UART_Boot main.c STM32_UART_boot.c STM32_UART_boot.h UART_driver.c UART_driver.h)
+add_executable(STM32_UART_Boot main.c STM32_UART_boot.c STM32_UART_boot.h UART_driver.c UART_driver.h testing_file.c testing_file.h)
 
 

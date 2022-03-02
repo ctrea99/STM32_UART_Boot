@@ -66,6 +66,7 @@ int init_UART_interface(char* device_file){
     port_options.c_lflag &= ~(ICANON | ECHO | ECHOE | ISIG);
 
     // check and strip parity bit from input
+    // Note: RX module is stripping MSB of transmitted word when parity stripping enabled
     //port_options.c_iflag |= (INPCK | ISTRIP);
     port_options.c_iflag &= ~ISTRIP; // keep parity bit
     port_options.c_iflag |= INPCK;   // check parity bit
@@ -102,7 +103,7 @@ int UART_Tx(int device_handle, unsigned char tx_data){
 
 
     // Note: RX module is stripping MSB of transmitted word
-   // printf("Data transmitted: %#x\n", tx_data);
+    // printf("Data transmitted: %#x\n", tx_data);
 
     // transmit tx_data to UART port
     bytes_transmitted = write(device_handle, &tx_data, 1);
