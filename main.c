@@ -1,42 +1,47 @@
 #include <stdio.h>
-//#include "./libraries/FTDI_D2XX_driver/ftd2xx.h"
 #include "STM32_UART_boot.h"
-
-
-
-#include <stdarg.h>
-#include <stdlib.h>
-#include <windows.h>
-#include <windef.h>
-#include <winnt.h>
-#include <winbase.h>
-#include <string.h>
-#include <math.h>
-#include <stdbool.h>
-#include <stdint.h>
-#include <sys/time.h>
-#define FTD2XX_STATIC
-#include "ftd2xx.h"
-
-
+#include "UART_driver.h"
+#include <termios.h>
+#include <unistd.h>
 
 int main() {
 
-    int test;
+    STM32_UART_boot();
 
 
-    FT_HANDLE ftHandle;
-    FT_STATUS ftStatus;
+    /*
+    device_handle = init_UART_interface(device_file);
 
-    ftStatus = FT_Open(0, &ftHandle);
-    if (ftStatus == FT_OK){
-        printf("It opened\n");
+    UART_Tx(device_handle, 0xD);
+    rx_data = UART_Rx(device_handle);
+
+    printf("rx_data: %#x\n", rx_data);
+    */
+
+    /*
+
+    // Note: error sending 0xD
+    int error_counter = 0;
+
+    for (unsigned char tx_data = 0; tx_data < 0xFF; tx_data++){
+        UART_Tx(device_handle, tx_data);
+        rx_data = UART_Rx(device_handle);
+
+        printf("tx_data: %#x\n", tx_data);
+        printf("rx_data: %#x\n", rx_data);
+        printf("---------------\n");
+
+        if (tx_data != rx_data){
+            printf("Error: tx_data (%#x) does not match rx_data (%#x)\n", tx_data, rx_data);
+            error_counter++;
+        }
+
     }
-    else {
-        printf("It did not open\n");
-    }
 
-    //test = STM32_UART_boot();
+    printf("Total errors: %d\n", error_counter);
+     */
+
+
 
     return 0;
 }

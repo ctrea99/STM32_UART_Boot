@@ -180,6 +180,18 @@ CMAKE_STRIP:FILEPATH=/usr/bin/strip
 // Studio IDE projects all commands are done without /nologo.
 CMAKE_VERBOSE_MAKEFILE:BOOL=FALSE
 
+//The directory containing a CMake configuration file for FTD2XX.
+FTD2XX_DIR:PATH=FTD2XX_DIR-NOTFOUND
+
+//Path to a file.
+FTD2XX_INCLUDE_DIR:PATH=/home/campell/Documents/crea/absat/software/STM32_UART_Boot/libraries/FTDI_D2XX_Driver/include
+
+//Path to a library.
+FTD2XX_LIBRARY:FILEPATH=/home/campell/Documents/crea/absat/software/STM32_UART_Boot/libraries/FTDI_D2XX_Driver/lib/libftd2xx.a
+
+//pkg-config executable
+PKG_CONFIG_EXECUTABLE:FILEPATH=/usr/bin/pkg-config
+
 //Value Computed by CMake
 STM32_UART_Boot_BINARY_DIR:STATIC=/home/campell/Documents/crea/absat/software/STM32_UART_Boot/cmake-build-debug
 
@@ -317,4 +329,8 @@ CMAKE_STRIP-ADVANCED:INTERNAL=1
 CMAKE_UNAME:INTERNAL=/bin/uname
 //ADVANCED property for variable: CMAKE_VERBOSE_MAKEFILE
 CMAKE_VERBOSE_MAKEFILE-ADVANCED:INTERNAL=1
+//Details about finding PkgConfig
+FIND_PACKAGE_MESSAGE_DETAILS_PkgConfig:INTERNAL=[/usr/bin/pkg-config][v0.29.1()]
+//ADVANCED property for variable: PKG_CONFIG_EXECUTABLE
+PKG_CONFIG_EXECUTABLE-ADVANCED:INTERNAL=1
 

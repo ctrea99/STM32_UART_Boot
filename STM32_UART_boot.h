@@ -6,14 +6,16 @@
 #define ACK  0x79
 #define NACK 0x1F
 #define UART_INIT_BYTE 0x7F
+#define WRITE_MEM_CMD_1 0x31
+#define WRITE_MEM_CMD_2 0xCE
 #define ERROR -1
 
-#define BYTES_TRANSMITTED 1
+#define NUM_BYTES_TX 1
 
-#define SOFTWARE_FILE_PATH "D:\\Campbells_Stuff\\University_of_Alberta\\AlbertaSAT\\Software\\STM32_UART_boot\\STM32_UART_Boot\\IEB_basic_functionality.bin"
+#define SOFTWARE_FILE_PATH "/home/campell/Documents/crea/absat/software/STM32_UART_Boot/IEB_basic_functionality.bin"
 
 int STM32_UART_boot();
-int UART_write_memory(int write_address, short int num_bytes_transmitted);
+int UART_write_memory(int device_handle, int write_address, short int num_bytes_transmitted);
 int UART_jump_to_address();
 
 #endif //STM32_UART_BOOT_STM32_UART_BOOT_H
