@@ -7,8 +7,8 @@
 
 int main() {
 
-    //STM32_UART_boot();
-    testing_function();
+    STM32_UART_boot();
+    //testing_function();
 
 
     /*

@@ -63,7 +63,8 @@ int STM32_UART_boot(){
 
     size_t num_bytes_read = 0;     // number of bytes read from STM32 software file
     int write_status   = 0;
-    short int buffer [NUM_BYTES_TX];
+    int write_address = WRITE_ADDR_START;  // STM32 memory address bytes will be written to
+    unsigned char buffer [NUM_BYTES_TX];
 
     // read first line from STM32 software file
     num_bytes_read = fread(buffer, 1, NUM_BYTES_TX, software_file_id);
@@ -72,10 +73,14 @@ int STM32_UART_boot(){
     while (num_bytes_read > 0){
 
         // transmit bytes to STM32 flash memory
-        // write_status = UART_write_memory();
+        write_status = UART_write_memory(device_handle, write_address, NUM_BYTES_TX, buffer);
+        //write_status = UART_write_memory(device_handle, write_address, NUM_BYTES_TX, 0xAA);
+
         // increment write address
+        write_address += NUM_BYTES_TX;
 
         if (write_status == ERROR){
+            printf("Error: Unable to write byte to memory\n");
             return ERROR;
         }
 
@@ -86,6 +91,8 @@ int STM32_UART_boot(){
     // Jump to address within STM32 (begin execution)
     //UART_jump_to_address();
 
+    printf("Finished?\n");
+
 
 
     fclose(software_file_id);      // close STM32 software file
@@ -95,7 +102,7 @@ int STM32_UART_boot(){
 }
 
 
-int UART_write_memory(int device_handle, int write_address, short int num_bytes_transmitted, unsigned char tx_data){
+int UART_write_memory(int device_handle, int write_address, short int num_bytes_transmitted, unsigned char tx_data[]){
 
     unsigned char rx_data;           // received data from serial port
     unsigned char trimmed_mem_addr;  // trimmed write address to tx individual byte
@@ -115,6 +122,8 @@ int UART_write_memory(int device_handle, int write_address, short int num_bytes_
         printf("Error: unexpected byte (%#x) received\n", rx_data);
         return ERROR;
     }
+
+    printf("here2\n");
 
 
     // transmit write address (4 bytes)
@@ -143,22 +152,37 @@ int UART_write_memory(int device_handle, int write_address, short int num_bytes_
         return ERROR;
     }
 
+    printf("here3\n");
+
     checksum = 0x00;  // reset checksum
 
     // send number of bytes to be transmitted N
-    UART_Tx(device_handle, NUM_BYTES_TX);
+    UART_Tx(device_handle, NUM_BYTES_TX - 1);
     checksum ^= NUM_BYTES_TX;
 
+    printf("here3.1\n");
+
     // transmit N+1 bytes of data
-    UART_Tx(device_handle, tx_data);
-    checksum ^= tx_data;
+    for(int i = 0; i < NUM_BYTES_TX; i++){
+        UART_Tx(device_handle, tx_data[i]);
+        checksum ^= tx_data[i];
+    }
     // TODO: generalize code to transmit N data bytes
+
+
+    printf("here3.2\n");
 
     // transmit checksum (XOR of all data bytes)
     UART_Tx(device_handle, checksum);
 
+    printf("here3.3\n");
+
     // wait for ACK, check for NACK
     rx_data = UART_Rx(device_handle);
+
+    // NOTE: Getting stuck here, receiving NACK
+    printf("rx_data: %d\n", rx_data);
+
     if (rx_data == NACK){
         printf("Error: NACK received\n");
         return ERROR;
@@ -167,6 +191,8 @@ int UART_write_memory(int device_handle, int write_address, short int num_bytes_
         printf("Error: unexpected byte (%#x) received\n", rx_data);
         return ERROR;
     }
+
+    printf("here5\n");
 
     return 0;
 }
