@@ -47,6 +47,8 @@ int init_UART_interface(char* device_file){
     // set the input/output baud rates specified by BAUD_RATE
     cfsetispeed(&port_options, B19200);
     cfsetospeed(&port_options, B19200);
+    //cfsetispeed(&port_options, B115200);
+    //cfsetospeed(&port_options, B115200);
 
     // enable the receiver and set local mode
     port_options.c_cflag |= (CLOCAL | CREAD);
@@ -100,6 +102,10 @@ int close_UART_interface(int device_handle){
 int UART_Tx(int device_handle, unsigned char tx_data){
 
     ssize_t bytes_transmitted = 0;
+
+    // TEMPORARY: Swap byte order to check endianness
+    // https://stackoverflow.com/questions/2182002/convert-big-endian-to-little-endian-in-c-without-using-provided-func
+    tx_data = (tx_data >> 4) | (tx_data << 4);
 
 
     // Note: RX module is stripping MSB of transmitted word

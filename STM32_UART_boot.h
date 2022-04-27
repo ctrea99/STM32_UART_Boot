@@ -13,13 +13,15 @@
 #define GO_CMD_2 0xDE
 
 // memory address STM32 software will be written to
-#define WRITE_ADDR_START 0x08000000
+//#define WRITE_ADDR_START 0x08000000
+#define WRITE_ADDR_START 0x08000010
 
 #define ERROR -1
 
 // number of bytes written to STM32 during one transaction
 // must be a multiple of 4
-#define NUM_BYTES_TX 4
+//#define NUM_BYTES_TX 8
+#define NUM_BYTES_TX 256
 
 #define SOFTWARE_FILE_PATH "/home/campell/Documents/crea/absat/software/STM32_UART_Boot/IEB_basic_functionality.bin"
 
