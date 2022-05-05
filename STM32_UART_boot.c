@@ -3,6 +3,7 @@
 #include "STM32_UART_boot.h"
 #include "UART_driver.h"
 #include <stdio.h>
+#include <stdlib.h>
 
 
 /*
@@ -51,11 +52,21 @@ int STM32_UART_boot(){
         printf("Info: STM32 UART port initialized\n");
     }
 
+    // get info on STM32 supported commands
+    UART_get_info(device_handle);
+
+
+    // Erase existing contents of STM32 flash memory
+    STM32_wipe_flash_mem(device_handle);
+
+    return 0;
+
+
 
     // Import STM32 software .bin file
     software_file_id = fopen(SOFTWARE_FILE_PATH, "rb");
     if (software_file_id == NULL){
-        printf("The file %s could not be opened\n", SOFTWARE_FILE_PATH);
+        printf("Error: The file %s could not be opened\n", SOFTWARE_FILE_PATH);
         return ERROR;
     }
 
@@ -80,7 +91,7 @@ int STM32_UART_boot(){
         buffer[3] = 0x56;
 
         counter++;
-        printf("Counter: %d\n", counter);
+        printf("Counter: %d,\tWrite address: %#x\n", counter, write_address);
 
         // transmit bytes to STM32 flash memory
         write_status = UART_write_memory(device_handle, write_address, NUM_BYTES_TX, buffer);
@@ -98,6 +109,7 @@ int STM32_UART_boot(){
     }
 
     printf("Write completed\n");
+
 
     // Jump to address within STM32 (begin execution)
     UART_jump_to_address(device_handle, WRITE_ADDR_START);
@@ -120,8 +132,8 @@ int UART_write_memory(int device_handle, int write_address, short int num_bytes_
     unsigned char checksum;          // STM32 checksum byte
 
     // transmit write memory command (0x31) + 0xCE
-    UART_Tx(device_handle, WRITE_MEM_CMD_1);
-    UART_Tx(device_handle, WRITE_MEM_CMD_2);
+    UART_Tx(device_handle, WRITE_MEM_CMD);
+    UART_Tx(device_handle, ~WRITE_MEM_CMD);
 
     // wait for ACK from STM32
     rx_data = UART_Rx(device_handle);
@@ -175,15 +187,11 @@ int UART_write_memory(int device_handle, int write_address, short int num_bytes_
         checksum ^= tx_data[i];
     }
 
-
     // transmit checksum (XOR of all data bytes)
     UART_Tx(device_handle, checksum);
 
     // wait for ACK, check for NACK
     rx_data = UART_Rx(device_handle);
-
-    // NOTE: Getting stuck here, receiving NACK
-
     if (rx_data == NACK){
         printf("Error: NACK received\n");
         return ERROR;
@@ -204,8 +212,8 @@ int UART_jump_to_address(int device_handle, int exe_addr){
     unsigned char trimmed_mem_addr;
 
     // Transmit Go command (0x21) + 0xDE
-    UART_Tx(device_handle, GO_CMD_1);
-    UART_Tx(device_handle, GO_CMD_2);
+    UART_Tx(device_handle, GO_CMD);
+    UART_Tx(device_handle, ~GO_CMD);
 
     // wait for ACK, check for NACK
     rx_data = UART_Rx(device_handle);
@@ -240,6 +248,160 @@ int UART_jump_to_address(int device_handle, int exe_addr){
     else if (rx_data != ACK){    // if rx_data not ACK or NACK
         printf("Error: unexpected byte (%#x) received\n", rx_data);
         return ERROR;
+    }
+
+    return 0;
+}
+
+
+
+int UART_erase_memory(int device_handle, int start_page, int num_pages){
+
+    unsigned char rx_data;
+    unsigned char checksum;
+    unsigned char trimmed_rx_data;
+
+    if (num_pages > MAX_NUM_ERASE_PAGES){
+        printf("Error: Attempting to erase too many pages in one command\n");
+        return ERROR;
+    }
+
+    // Transmit Erase Memory command (0x44) + 0xBB
+    UART_Tx(device_handle, ERASE_MEM_CMD);
+    UART_Tx(device_handle, ~ERASE_MEM_CMD);
+
+    // wait for ACK, check for NACK
+    rx_data = UART_Rx(device_handle);
+    if (rx_data == NACK){
+        printf("Error: NACK received\n");
+        return ERROR;
+    }
+    else if (rx_data != ACK){    // if rx_data not ACK or NACK
+        printf("Error: unexpected byte (%#x) received\n", rx_data);
+        return ERROR;
+    }
+
+    checksum = 0x00;
+
+    // transmit number of pages to be erased
+    trimmed_rx_data = ((num_pages - 1) >> 8) & 0xFF;
+    UART_Tx(device_handle, trimmed_rx_data);
+    checksum ^= trimmed_rx_data;
+
+    trimmed_rx_data = (num_pages - 1) & 0xFF;
+    UART_Tx(device_handle, trimmed_rx_data);
+    checksum ^= trimmed_rx_data;
+
+
+    // transmit the page numbers to be erased
+    // 2 bytes, MSB first
+    for (int i = start_page; i < start_page + num_pages; i++){
+
+        trimmed_rx_data = (i >> 8) & 0xFF;
+        UART_Tx(device_handle, trimmed_rx_data);
+        checksum ^= trimmed_rx_data;
+
+        trimmed_rx_data = i & 0xFF;
+        UART_Tx(device_handle, trimmed_rx_data);
+        checksum ^= trimmed_rx_data;
+    }
+
+    // transmit checksum
+    UART_Tx(device_handle, checksum);
+
+    // wait for ACK, check for NACK
+    rx_data = UART_Rx(device_handle);
+    if (rx_data == NACK){
+        printf("Error: NACK received\n");
+        return ERROR;
+    }
+    else if (rx_data != ACK){    // if rx_data not ACK or NACK
+        printf("Error: unexpected byte (%#x) received\n", rx_data);
+        return ERROR;
+    }
+
+
+    return 0;
+}
+
+
+int UART_get_info(int device_handle){
+
+    unsigned char rx_data;
+    int num_bytes_rx;
+    unsigned char *STM_info;
+
+    // Transmit Get command (0x00) + 0xFF
+    UART_Tx(device_handle, GET_CMD);
+    UART_Tx(device_handle, ~GET_CMD);
+
+    // wait for ACK, check for NACK
+    rx_data = UART_Rx(device_handle);
+    if (rx_data == NACK){
+        printf("Error: NACK received\n");
+        return ERROR;
+    }
+    else if (rx_data != ACK){    // if rx_data not ACK or NACK
+        printf("Error: unexpected byte (%#x) received\n", rx_data);
+        return ERROR;
+    }
+
+    // get number of bytes to be received
+    num_bytes_rx = (int)UART_Rx(device_handle) + 1;
+
+
+    STM_info = (unsigned char *)malloc(num_bytes_rx * sizeof(char));
+
+    // Get bootloader version and supported commands
+    for (int i = 0; i < num_bytes_rx; i++){
+        STM_info[i] = UART_Rx(device_handle);
+    }
+
+    // wait for ACK, check for NACK
+    rx_data = UART_Rx(device_handle);
+    if (rx_data == NACK){
+        printf("Error: NACK received\n");
+        return ERROR;
+    }
+    else if (rx_data != ACK){    // if rx_data not ACK or NACK
+        printf("Error: unexpected byte (%#x) received\n", rx_data);
+        return ERROR;
+    }
+
+    printf("Bootloader Version: %#x\n", STM_info[0]);
+
+    printf("Supported Commands:\n");
+    for (int i = 1; i < num_bytes_rx; i++){
+        printf("%3d: %#x\n", i, STM_info[i]);
+    }
+
+
+    free(STM_info);
+
+    return 0;
+}
+
+// completely erase all pages of STM32 internal flash memory
+int STM32_wipe_flash_mem(int device_handle){
+
+    int erase_status;
+    int current_page_num = 0;
+
+    for (int i = 0; i < FLASH_MEM_SIZE / MAX_NUM_ERASE_PAGES; i++){
+        erase_status = UART_erase_memory(device_handle, current_page_num, MAX_NUM_ERASE_PAGES);
+        if (erase_status != 0){
+            printf("Error: Could not erase STM32 flash memory\n");
+            return ERROR;
+        }
+        current_page_num += MAX_NUM_ERASE_PAGES;
+    }
+
+    if ((FLASH_MEM_SIZE % MAX_NUM_ERASE_PAGES) != 0) {
+        erase_status = UART_erase_memory(device_handle, current_page_num, FLASH_MEM_SIZE % MAX_NUM_ERASE_PAGES);
+        if (erase_status != 0) {
+            printf("Error: Could not erase STM32 flash memory\n");
+            return ERROR;
+        }
     }
 
     return 0;

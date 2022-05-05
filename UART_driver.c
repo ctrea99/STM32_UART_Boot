@@ -87,7 +87,7 @@ int init_UART_interface(char* device_file){
     // set new options for the port
     tcsetattr(device_handle, TCSANOW, &port_options);
 
-    printf("Device configuration complete\n");
+    printf("Info: Serial port configuration complete\n");
 
     return device_handle;
 }
@@ -102,10 +102,6 @@ int close_UART_interface(int device_handle){
 int UART_Tx(int device_handle, unsigned char tx_data){
 
     ssize_t bytes_transmitted = 0;
-
-    // TEMPORARY: Swap byte order to check endianness
-    // https://stackoverflow.com/questions/2182002/convert-big-endian-to-little-endian-in-c-without-using-provided-func
-    tx_data = (tx_data >> 4) | (tx_data << 4);
 
 
     // Note: RX module is stripping MSB of transmitted word
