@@ -66,10 +66,10 @@ int STM32_UART_boot(){
     while (num_bytes_read > 0){
 
         // known byte sequence for test purposes
-        buffer[0] = 0xAA;
-        buffer[1] = 0xFF;
-        buffer[2] = 0xCC;
-        buffer[3] = 0x56;
+        //buffer[0] = 0xAA;
+        //buffer[1] = 0xFF;
+        //buffer[2] = 0xCC;
+        //buffer[3] = 0x56;
 
         counter++;
         printf("Counter: %4d,\tWrite address: %#x\n", counter, write_address);
@@ -89,10 +89,11 @@ int STM32_UART_boot(){
         num_bytes_read = fread(buffer, 1, NUM_BYTES_TX, software_file_id);
     }
 
-    printf("Write completed\n");
+    printf("Info: Write completed\n");
 
 
     // Jump to address within STM32 (begin execution)
+    printf("Info: Jumping to software\n");
     UART_jump_to_address(device_handle, WRITE_ADDR_START);
 
     printf("Finished?\n");

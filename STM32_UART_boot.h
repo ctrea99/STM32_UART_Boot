@@ -8,7 +8,8 @@
 #define WRITE_ADDR_START 0x08000000
 
 // file path of software binary to be uploaded to STM32
-#define SOFTWARE_FILE_PATH "/home/campell/Documents/crea/absat/software/STM32_UART_Boot/IEB_basic_functionality.bin"
+//#define SOFTWARE_FILE_PATH "/home/campell/Documents/crea/absat/software/STM32_UART_Boot/IEB_basic_functionality.bin"
+#define SOFTWARE_FILE_PATH "/home/campell/Documents/crea/absat/software/STM32_UART_Boot/STM32L073RZ_NUCLEO.bin"
 
 // function prototypes
 int STM32_UART_boot();
