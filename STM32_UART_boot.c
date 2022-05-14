@@ -15,13 +15,11 @@
 
 // TODO: Move wait for ACK/NACK to separate function?
 
+
 int STM32_UART_boot(){
 
     char device_file[256] = "/dev/ttyUSB0";    // device file for serial port
     int device_handle;         // serial port handle
-    unsigned char rx_data;     // received data from serial port
-    int result = 0;            // status bit for function calls
-
     FILE *software_file_id;    // handle for STM32 software file
 
     // initialize serial port
@@ -52,15 +50,16 @@ int STM32_UART_boot(){
 
     // Transmit contents of .bin file to STM32
 
-    size_t num_bytes_read = 0;     // number of bytes read from STM32 software file
-    int write_status      = 0;
-    int write_address     = WRITE_ADDR_START;  // STM32 memory address bytes will be written to
-    unsigned char buffer [NUM_BYTES_TX];
+    size_t num_bytes_read  = 0;     // number of bytes read from STM32 software file
+    int  write_status      = 0;
+    int  write_address     = WRITE_ADDR_START;  // STM32 memory address bytes will be written to
+    unsigned char tx_buffer [NUM_BYTES_TX];              // buffer to store data that will be written to memory
 
-    int counter = 0;
+
+    int counter = 0;     // used to track software progression
 
     // read first line from STM32 software file
-    num_bytes_read = fread(buffer, 1, NUM_BYTES_TX, software_file_id);
+    num_bytes_read = fread(tx_buffer, 1, NUM_BYTES_TX, software_file_id);
 
     // loop until entire STM32 software has been written
     while (num_bytes_read > 0){
@@ -75,10 +74,21 @@ int STM32_UART_boot(){
         printf("Counter: %4d,\tWrite address: %#x\n", counter, write_address);
 
         // transmit bytes to STM32 flash memory
-        write_status = UART_write_memory(device_handle, write_address, buffer);
+        write_status = UART_write_memory(device_handle, write_address, tx_buffer);
         if (write_status == ERROR){
             printf("Error: Unable to write byte to memory\n");
             return ERROR;
+        }
+
+
+        // Optional: Verification of flash memory contents after write operation
+        if (MEM_READBACK_EN){
+            int readback_status = STM32_verify_memory(device_handle, write_address, tx_buffer);
+
+            if (readback_status == ERROR){
+                printf("Error: Memory verification failed\n");
+                return ERROR;
+            }
         }
 
         // increment write address
@@ -86,7 +96,7 @@ int STM32_UART_boot(){
 
         // read in next few bytes from software .bin file
         // TODO: Not sure if this automatically pads with 0's if num_bytes_read < NUM_BYTES_TX
-        num_bytes_read = fread(buffer, 1, NUM_BYTES_TX, software_file_id);
+        num_bytes_read = fread(tx_buffer, 1, NUM_BYTES_TX, software_file_id);
     }
 
     printf("Info: Write completed\n");
@@ -96,7 +106,7 @@ int STM32_UART_boot(){
     printf("Info: Jumping to software\n");
     UART_jump_to_address(device_handle, WRITE_ADDR_START);
 
-    printf("Finished?\n");
+    printf("Info: STM32 boot completed\n");
 
 
     fclose(software_file_id);      // close STM32 software file
@@ -133,6 +143,32 @@ int STM32_wipe_flash_mem(int device_handle){
     }
 
     printf("Info: Memory erase completed\n");
+
+    return 0;
+}
+
+// verify contents of STM32 flash memory with expected values
+int STM32_verify_memory(int device_handle, int read_address, unsigned char tx_buffer[]){
+
+    int  read_status;
+    unsigned char rx_buffer[NUM_BYTES_TX];
+
+    read_status = UART_read_memory(device_handle, read_address, rx_buffer);
+    if (read_status != 0){
+        printf("Error: Could not read flash memory contents\n");
+        return ERROR;
+    }
+
+    // compare flash memory contents with intended transmitted data
+    for (int i = 0; i < NUM_BYTES_TX; i++){
+        if (tx_buffer[i] != rx_buffer[i]){
+            printf("Error: Flash memory contents do not match expected value\n");
+            printf("\tMemory address:\t%#x\n", read_address + i);
+            printf("\tExpected value:\t%#x\n", tx_buffer[i]);
+            printf("\tRead value:\t\t%#x\n", rx_buffer[i]);
+            return ERROR;
+        }
+    }
 
     return 0;
 }

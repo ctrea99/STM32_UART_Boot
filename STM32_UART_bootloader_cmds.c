@@ -7,8 +7,8 @@
 
 int UART_init_bootloader(int device_handle){
 
-    unsigned char rx_data;     // received data from serial port
-    int result = 0;            // status bit for function calls
+    unsigned char rx_data;    // received data from serial port
+    int  result = 0;          // status bit for function calls
 
     // initialize UART interface on STM32
     result = UART_Tx(device_handle, UART_INIT_BYTE);
@@ -109,6 +109,82 @@ int UART_write_memory(int device_handle, int write_address, unsigned char tx_dat
     else if (rx_data != ACK){    // if rx_data not ACK or NACK
         printf("Error: unexpected byte (%#x) received\n", rx_data);
         return ERROR;
+    }
+
+    return 0;
+}
+
+
+// read contents of flash memory inside STM32
+// always reads one page of flash memory at a time
+int UART_read_memory(int device_handle, int read_address, unsigned char memory_contents[]){
+
+    unsigned char rx_data;           // received data from serial port
+    unsigned char trimmed_mem_addr;  // trimmed write address to tx individual byte
+    unsigned char checksum;          // STM32 checksum byte
+
+    // transmit read memory command (0x11) + 0xEE
+    UART_Tx(device_handle, READ_MEM_CMD);
+    UART_Tx(device_handle, ~READ_MEM_CMD);
+
+    // wait for ACK from STM32
+    rx_data = UART_Rx(device_handle);
+    if (rx_data == NACK){
+        printf("Error: NACK received 1\n");
+        return ERROR;
+    }
+    else if (rx_data != ACK){    // if rx_data not ACK or NACK
+        printf("Error: unexpected byte (%#x) received\n", rx_data);
+        return ERROR;
+    }
+
+
+    // transmit read address (4 bytes)
+    // byte 1 is the address MSB, byte 4 is the LSB
+
+    checksum = 0x00;
+
+    for (int i = 3 ; i >= 0 ; i--){
+        // extract ith byte from write_address
+        trimmed_mem_addr = (read_address >> (8*i)) & 0xFF;
+        checksum ^= trimmed_mem_addr;
+
+        UART_Tx(device_handle, trimmed_mem_addr);
+    }
+    // transmit checksum byte (XOR of address bytes)
+    UART_Tx(device_handle, checksum);
+
+    // wait for ACK from STM32
+    rx_data = UART_Rx(device_handle);
+    if (rx_data == NACK){
+        printf("Error: NACK received 2\n");
+        return ERROR;
+    }
+    else if (rx_data != ACK){    // if rx_data not ACK or NACK
+        printf("Error: unexpected byte (%#x) received\n", rx_data);
+        return ERROR;
+    }
+
+    // transmit number of bytes to be read plus checksum
+    checksum = ~(NUM_BYTES_TX - 1);
+    UART_Tx(device_handle, NUM_BYTES_TX - 1);
+    UART_Tx(device_handle, checksum);
+
+    // wait for ACK from STM32
+    rx_data = UART_Rx(device_handle);
+    if (rx_data == NACK){
+        printf("Error: NACK received 3\n");
+        return ERROR;
+    }
+    else if (rx_data != ACK){    // if rx_data not ACK or NACK
+        printf("Error: unexpected byte (%#x) received\n", rx_data);
+        return ERROR;
+    }
+
+    // receive memory contents from STM32
+    // TODO: Find a better way to handle data? I.e. memory_contents must always be NUM_BYTES_TX long but this is not guaranteed or checked
+    for (int i = 0; i < NUM_BYTES_TX; i++){
+        memory_contents[i] = UART_Rx(device_handle);
     }
 
     return 0;

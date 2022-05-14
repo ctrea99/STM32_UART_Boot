@@ -2,6 +2,9 @@
 
 #define ERROR -1
 
+// enable/disable readback of flash memory contents to verify write operations
+#define MEM_READBACK_EN 1
+
 // memory address STM32 software will be written to
 // NOTE: Likely has to correspond to page boundary of flash memory (0x0800 0000 + n*0x80)
 // (see STM doc RM0367 pg.67)
@@ -14,5 +17,6 @@
 // function prototypes
 int STM32_UART_boot();
 int STM32_wipe_flash_mem(int device_handle);
+int STM32_verify_memory(int device_handle, int read_address, unsigned char tx_buffer[]);
 
 
